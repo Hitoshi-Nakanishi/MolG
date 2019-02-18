@@ -1,12 +1,9 @@
 import tensorflow as tf
-
 from utils.sparse_molecular_dataset import SparseMolecularDataset
 from utils.trainer import Trainer
 from utils.utils import *
-
 from models.gan import GraphGANModel
 from models import encoder_rgcn, decoder_adj, decoder_dot, decoder_rnn
-
 from optimizers.gan import GraphGANOptimizer
 
 batch_dim = 128
@@ -24,12 +21,10 @@ data.load('data/gdb9_9nodes.sparsedataset')
 
 steps = (len(data) // batch_dim)
 
-
 def train_fetch_dict(i, steps, epoch, epochs, min_epochs, model, optimizer):
     a = [optimizer.train_step_G] if i % n_critic == 0 else [optimizer.train_step_D]
     b = [optimizer.train_step_V] if i % n_critic == 0 and la < 1 else []
     return a + b
-
 
 def train_feed_dict(i, steps, epoch, epochs, min_epochs, model, optimizer, batch_dim):
     mols, _, _, a, x, _, _, _, _ = data.next_train_batch(batch_dim)

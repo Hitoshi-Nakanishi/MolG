@@ -1,7 +1,6 @@
 import time
 import datetime
 
-
 class ProgressBar:
     def __init__(self, length, max_value):
         assert length > 0 and max_value > 0
@@ -19,5 +18,4 @@ class ProgressBar:
                        self.length,
                        datetime.timedelta(seconds=int(delta))
                        if delta < 60 * 60 * 10 else '-:--:-']
-
         print('\r{:=5.0%} ({:={}}/{:={}}) [{:{}}] ETA: {}'.format(*format_spec), end='')

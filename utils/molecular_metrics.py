@@ -4,13 +4,11 @@ from rdkit import DataStructs
 from rdkit import Chem
 from rdkit.Chem import QED
 from rdkit.Chem import Crippen
-
 import math
 import numpy as np
 
 NP_model = pickle.load(gzip.open('data/NP_score.pkl.gz'))
 SA_model = {i[j]: float(i[0]) for i in pickle.load(gzip.open('data/SA_score.pkl.gz')) for j in range(1, len(i))}
-
 
 class MolecularMetrics(object):
 
@@ -99,7 +97,6 @@ class MolecularMetrics(object):
 
     @staticmethod
     def natural_product_scores(mols, norm=False):
-
         # calculating the score
         scores = [sum(NP_model.get(bit, 0)
                       for bit in Chem.rdMolDescriptors.GetMorganFingerprint(mol,
@@ -111,10 +108,8 @@ class MolecularMetrics(object):
         scores = list(map(lambda score: score if score is None else (
             4 + math.log10(score - 4 + 1) if score > 4 else (
                 -4 - math.log10(-4 - score + 1) if score < -4 else score)), scores))
-
         scores = np.array(list(map(lambda x: -4 if x is None else x, scores)))
         scores = np.clip(MolecularMetrics.remap(scores, -3, 1), 0.0, 1.0) if norm else scores
-
         return scores
 
     @staticmethod
@@ -179,9 +174,7 @@ class MolecularMetrics(object):
         score3 = 0.
         if nAtoms > len(fps):
             score3 = math.log(float(nAtoms) / len(fps)) * .5
-
         sascore = score1 + score2 + score3
-
         # need to transform "raw" value into scale between 1 and 10
         min = -4.0
         max = 2.5
@@ -193,7 +186,6 @@ class MolecularMetrics(object):
             sascore = 10.0
         elif sascore < 1.:
             sascore = 1.0
-
         return sascore
 
     @staticmethod
@@ -201,7 +193,6 @@ class MolecularMetrics(object):
         scores = [MolecularMetrics._compute_SAS(mol) if mol is not None else None for mol in mols]
         scores = np.array(list(map(lambda x: 10 if x is None else x, scores)))
         scores = np.clip(MolecularMetrics.remap(scores, 5, 1.5), 0.0, 1.0) if norm else scores
-
         return scores
 
     @staticmethod
@@ -212,7 +203,6 @@ class MolecularMetrics(object):
         scores = np.array(
             list(map(lambda x: MolecularMetrics.__compute_diversity(x, fps) if x is not None else 0, mols)))
         scores = np.clip(MolecularMetrics.remap(scores, 0.9, 0.945), 0.0, 1.0)
-
         return scores
 
     @staticmethod
@@ -224,13 +214,11 @@ class MolecularMetrics(object):
 
     @staticmethod
     def drugcandidate_scores(mols, data):
-
         scores = (MolecularMetrics.constant_bump(
             MolecularMetrics.water_octanol_partition_coefficient_scores(mols, norm=True), 0.210,
             0.945) + MolecularMetrics.synthetic_accessibility_score_scores(mols,
                                                                            norm=True) + MolecularMetrics.novel_scores(
             mols, data) + (1 - MolecularMetrics.novel_scores(mols, data)) * 0.3) / 4
-
         return scores
 
     @staticmethod

@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.sparsedataset
+*.gz
+*.sdf
+*.sdf.csv
 
 # C extensions
 *.so

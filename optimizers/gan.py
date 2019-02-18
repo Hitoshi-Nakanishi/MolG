@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 class GraphGANOptimizer(object):
 
     def __init__(self, model, learning_rate=1e-3, feature_matching=True):
@@ -8,18 +7,15 @@ class GraphGANOptimizer(object):
 
         with tf.name_scope('losses'):
             eps = tf.random_uniform(tf.shape(model.logits_real)[:1], dtype=model.logits_real.dtype)
-
             x_int0 = model.adjacency_tensor * tf.expand_dims(tf.expand_dims(tf.expand_dims(eps, -1), -1),
                                                              -1) + model.edges_softmax * (
                              1 - tf.expand_dims(tf.expand_dims(tf.expand_dims(eps, -1), -1), -1))
             x_int1 = model.node_tensor * tf.expand_dims(tf.expand_dims(eps, -1), -1) + model.nodes_softmax * (
                     1 - tf.expand_dims(tf.expand_dims(eps, -1), -1))
-
             grad0, grad1 = tf.gradients(model.D_x((x_int0, None, x_int1), model.discriminator_units), (x_int0, x_int1))
 
             self.grad_penalty = tf.reduce_mean(((1 - tf.norm(grad0, axis=-1)) ** 2), (-2, -1)) + tf.reduce_mean(
-                ((1 - tf.norm(grad1, axis=-1)) ** 2), -1, keep_dims=True)
-
+                ((1 - tf.norm(grad1, axis=-1)) ** 2), -1, keepdims=True)
             self.loss_D = - model.logits_real + model.logits_fake
             self.loss_G = - model.logits_fake
             self.loss_V = (model.value_logits_real - model.rewardR) ** 2 + (
